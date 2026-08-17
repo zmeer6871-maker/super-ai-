@@ -1,5 +1,6 @@
-import { ChatProvider, ChatMessage } from "./provider";
-import fetch from "node-fetch";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ChatProvider, ChatMessage } from "../providers/provider";
+const fetch: any = require('node-fetch')
 
 class OpenAIProvider implements ChatProvider {
   available = false;
