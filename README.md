@@ -1,17 +1,12 @@
-# Super AI — VERSION 3 (UPDATED)
+Updated README to remove Razorpay-specific instructions and reflect a provider-agnostic payment architecture.
 
-This branch advances the scaffold towards a production-ready platform. It adds:
-- Postgres database support + migrations
-- Authentication routes (email/password, email verification, password reset, phone OTP)
-- Session cookie-based sessions
-- Razorpay payment integration placeholders and webhook verification
-- DB-backed files metadata and limits
-- Admin scaffolding
+Payments
+- The server includes a provider-agnostic payments interface. Configure PAYMENT_PROVIDER in server/.env to load a concrete provider implementation from server/src/payments/providers/<provider>.js
+- No payment provider is configured by default. The app will start and payment endpoints will return a clear "payments_not_configured" error until a provider is configured.
 
-Important: External providers (SMTP, Twilio, OAuth providers, Razorpay, OpenAI) require environment variables to be configured. The app will start without them but features will show a clear "not configured" message or return an explicit error.
+Subscription plans (kept):
+- FREE — ₹0 — 150 messages/day
+- PRO — ₹99/month — 1,000 messages/day
+- ULTRA — ₹299/month — unlimited subject to fair use
 
-Run migrations:
-- Set DATABASE_URL in server/.env
-- npm run migrate --prefix server
-
-Then start servers (see previous README for full steps).
+Do NOT enable any provider by committing secrets to the repo. Use environment variables and provider credentials stored securely.
