@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react'
 
-type Msg = { id: string; role: 'user' | 'assistant'; text: string }
+type Msg = { id: string; role: 'user' | 'assistant' | 'system'; text: string }
 
 const ASSISTANTS = ['ALIC', 'DESK', 'SIR X']
+const MODES = ['general','study','writing','coding','translator','summarizer','quiz','explore','auto']
 
 export default function Chat() {
   const [messages, setMessages] = useState<Msg[]>(() => {
@@ -10,6 +11,8 @@ export default function Chat() {
   })
   const [input, setInput] = useState('')
   const [assistant, setAssistant] = useState('ALIC')
+  const [mode, setMode] = useState('general')
+  const [auto, setAuto] = useState(false)
   const [loading, setLoading] = useState(false)
   const fileRef = useRef<HTMLInputElement | null>(null)
 
@@ -22,7 +25,7 @@ export default function Chat() {
     setInput('')
     setLoading(true)
     try {
-      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: userMsg.text }], assistant }) })
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: userMsg.text }], assistant, mode, auto }) })
       if (!res.ok) {
         const err = await res.json().catch(() => ({ message: 'Unknown error' }))
         setMessages((s) => [...s, { id: Date.now().toString(), role: 'assistant', text: `Error: ${err.message || JSON.stringify(err)}` }])
@@ -45,7 +48,9 @@ export default function Chat() {
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]
     if (!f) return
-    setMessages((s) => [...s, { id: Date.now().toString(), role: 'user', text: `[Image attached: ${f.name}]` }])
+    const tag = `[Image attached: ${f.name}]`
+    setMessages((s) => [...s, { id: Date.now().toString(), role: 'user', text: tag }])
+    // In a real app you'd upload the file to the server or a storage provider.
   }
 
   // Basic voice input using SpeechRecognition if available
@@ -72,6 +77,12 @@ export default function Chat() {
         <select value={assistant} onChange={(e) => setAssistant(e.target.value)}>
           {ASSISTANTS.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
+        <select value={mode} onChange={(e) => setMode(e.target.value)}>
+          {MODES.map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
+        <label style={{display:'flex',alignItems:'center',gap:6}}>
+          <input type="checkbox" checked={auto} onChange={(e)=>setAuto(e.target.checked)} /> Auto
+        </label>
         <button onClick={onAttach}>Attach</button>
         <button onClick={startVoice}>Voice</button>
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onFile} />

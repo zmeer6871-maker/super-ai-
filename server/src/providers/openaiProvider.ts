@@ -19,9 +19,8 @@ class OpenAIProvider implements ChatProvider {
   async sendChat(messages: ChatMessage[], opts?: { assistant?: string; mode?: string }) {
     if (!this.available) throw new Error(this.unavailableMessage);
 
-    // Minimal forwarding implementation to OpenAI Chat Completions API v1
     const payload = {
-      model: "gpt-4o-mini",
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
       messages: messages.map((m) => ({ role: m.role, content: m.content }))
     };
 
@@ -43,7 +42,6 @@ class OpenAIProvider implements ChatProvider {
     }
 
     const data = await resp.json();
-    // This maps to a safe structure; do not expose provider internals.
     const content = data.choices?.[0]?.message?.content ?? null;
     return { text: content, raw: data };
   }
