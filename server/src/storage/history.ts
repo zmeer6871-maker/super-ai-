@@ -15,6 +15,8 @@ export class HistoryStore {
         arr = [];
       }
       arr.push(item);
+      // keep only last 5000 entries to avoid uncontrolled growth
+      if (arr.length > 5000) arr = arr.slice(-5000);
       await fs.writeFile(DB_PATH, JSON.stringify(arr, null, 2), "utf-8");
     } catch (e) {
       console.error("Failed to append history", e);
